@@ -1,0 +1,44 @@
+{
+  "manifest_version": 2,
+  "name": "DHU助手",
+  "version": "0.0.1",
+  "description": "移除教务首页漂浮窗，同步课表至Google Calendar",
+  "icons": {
+    "128": "icon.png"
+  },
+  "author": "Erick Guan",
+  "homepage_url": "http://project.algalon.net/dhu_helper",
+  "minimum_chrome_version": "22",
+  "content_scripts": [
+    {
+      "matches": ["http://jw.dhu.edu.cn/dhu/student/"],
+      "css": ["blockFloat.css"],
+      "run_at": "document_start"
+    }, {
+      "matches": [
+        "http://jw.dhu.edu.cn/dhu/student/selectcourse/seeselectedcourse.jsp"
+      ],
+      "css": [
+        "bootstrap.min.css",
+        "main.css"
+      ],
+      "js": [
+        "jquery-2.0.3.min.js",
+        "bootstrap.min.js",
+        "calendar.js"
+      ]
+    }
+  ],
+  "background": {
+    "scripts": [
+      "jquery-2.0.3.min.js",
+      "background.js"
+    ]
+  },
+  "permissions": [
+    "tabs"
+  ],
+  "web_accessible_resources": [
+    "jquery-2.0.3.min.map"
+  ]
+}
