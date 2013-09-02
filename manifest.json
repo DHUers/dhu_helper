@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "DHU助手",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "移除教务首页漂浮窗，同步课表至Google Calendar",
   "icons": {
     "128": "icon.png"
