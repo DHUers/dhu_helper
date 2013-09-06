@@ -39,3 +39,7 @@
 .hide-course {
   display: none;
 }
+
+.course-item:hover {
+  background-color: #ffffbf;
+}

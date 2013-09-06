@@ -24,6 +24,12 @@ function filterCourse(display) {
 function hook() {
   var showToolList = '<button id="control-display-button" type="button" class="btn btn-large btn-info">只显示未获得学分课程</button>';
   $('body').append(showToolList);
+  $('tr').each(function() {
+    var courseId = $(this).find('td:nth-child(2)');
+    if (typeof parseInt(courseId.text()) !== 'number' || isNaN(parseInt(courseId.text())))
+      return;
+    $(this).addClass('course-item');
+  });
   $('#control-display-button').click(function() {
     if ($(this).text() === '只显示未获得学分课程') {
       $(this).text('显示所有课程');
