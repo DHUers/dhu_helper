@@ -1,8 +1,8 @@
 {
   "manifest_version": 2,
   "name": "DHU助手",
-  "version": "0.0.2",
-  "description": "移除教务首页漂浮窗，同步课表至Google Calendar",
+  "version": "0.1.0",
+  "description": "移除教务首页漂浮窗，同步课表至Google Calendar，改进选课列表",
   "icons": {
     "128": "icon.png"
   },
@@ -26,6 +26,17 @@
         "jquery-2.0.3.min.js",
         "bootstrap.min.js",
         "calendar.js"
+      ]
+    }, {
+      "matches": ["http://jw.dhu.edu.cn/dhu/student/selectcourse/selectCourse_ts.jsp"],
+      "css": [
+        "bootstrap.min.css",
+        "main.css"
+      ],
+      "js": [
+        "jquery-2.0.3.min.js",
+        "bootstrap.min.js",
+        "select_course.js"
       ]
     }
   ],
