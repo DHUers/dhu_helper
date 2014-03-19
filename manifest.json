@@ -27,6 +27,17 @@
         "bootstrap.min.js",
         "calendar.js"
       ]
+    }, {
+      "matches": ["http://jw.dhu.edu.cn/dhu/student/selectcourse/selectCourse_ts.jsp"],
+      "css": [
+        "bootstrap.min.css",
+        "main.css"
+      ],
+      "js": [
+        "jquery-2.0.3.min.js",
+        "bootstrap.min.js",
+        "select_course.js"
+      ]
     }
   ],
   "background": {

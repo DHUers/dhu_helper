@@ -147,6 +147,9 @@ function fetchSeletedCoursePage() {
 
     var timeLocationTable = $(this).find('tr').each(function() {
       var time = $.trim($(this).find('td:nth-child(2)').text()).match(/周(.)(.*)节/);
+      if (time == null) {
+        return;
+      }
       var classList = time[2].split('.').slice(1);
       var rawWeekRange = $.trim($(this).find('td:first-child').text());
 

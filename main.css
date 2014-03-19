@@ -4,6 +4,12 @@
   right: 5px;
 }
 
+#control-display-button {
+  position: fixed;
+  top: 5px;
+  right: 5px;
+}
+
 #sync_panel {
   position: absolute;
   z-index: 9999;
@@ -28,4 +34,12 @@
 
 #reminder-setting .row, #add-reminder-setting {
   margin-top: 5px;
+}
+
+.hide-course {
+  display: none;
+}
+
+.course-item:hover {
+  background-color: #ffffbf;
 }
