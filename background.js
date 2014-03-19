@@ -11,14 +11,14 @@ function validateToken(token) {
     url: 'https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=' + token,
     async: false,
     success: function(data) {
-      validated = data.audience == clientId;
+      validated = data.audience === clientId;
     },
   });
   return validated;
 }
 
 function authGoogle(sendResponse) {
-  var authUrl = encodeURI('https://accounts.google.com/o/oauth2/auth?redirect_uri=http://algalon.net/oauth2callback&client_id=' + clientId + '&response_type=token&scope=https://www.googleapis.com/auth/calendar')
+  var authUrl = encodeURI('https://accounts.google.com/o/oauth2/auth?redirect_uri=https://algalon.net/oauth2callback&client_id=' + clientId + '&response_type=token&scope=https://www.googleapis.com/auth/calendar')
   var windowProperties = {
     url: authUrl,
     left: 300,
@@ -146,10 +146,12 @@ function syncCalendarEvent(data, sendResponse) {
 
     var requestBody = {
       start: {
-        dateTime: startDateTime.toISOString()
+        dateTime: startDateTime.toISOString(),
+	timeZone: 'Asia/Shanghai'
       },
       end: {
-        dateTime: endDateTime.toISOString()
+        dateTime: endDateTime.toISOString(),
+	timeZone: 'Asia/Shanghai'
       },
       location: v.location,
       description: '老师：' + v.teacherName,
