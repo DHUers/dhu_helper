@@ -31,7 +31,7 @@ function authGoogle(sendResponse) {
   chrome.windows.create(windowProperties, function(window) {
     chrome.tabs.onUpdated.addListener(function(tabId, changeInfo) {
       var url = changeInfo.url;
-      if (url && url.indexOf('http://algalon.net/oauth2callback') != -1) {
+      if (url && url.indexOf('https://algalon.net/oauth2callback') != -1) {
         accessToken = url.split('#')[1].split('&')[0].split('=')[1];
         chrome.windows.remove(window.id);
         sendResponse({status: validateToken(accessToken)});
