@@ -146,12 +146,10 @@ function syncCalendarEvent(data, sendResponse) {
 
     var requestBody = {
       start: {
-        dateTime: startDateTime.toISOString().slice(0, -1) + '+08:00',
-        timeZone: 'Asia/Shanghai'
+        dateTime: startDateTime.toISOString()
       },
       end: {
-        dateTime: endDateTime.toISOString().slice(0, -1) + '+08:00',
-        timeZone: 'Asia/Shanghai'
+        dateTime: endDateTime.toISOString()
       },
       location: v.location,
       description: '老师：' + v.teacherName,
