@@ -11,7 +11,7 @@ function validateToken(token) {
     url: 'https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=' + token,
     async: false,
     success: function(data) {
-      validated = data.audience == clientId;
+      validated = data.audience === clientId;
     },
   });
   return validated;
@@ -146,12 +146,12 @@ function syncCalendarEvent(data, sendResponse) {
 
     var requestBody = {
       start: {
-        dateTime: startDateTime.toISOString().slice(0, -1) + '+08:00',
-        timeZone: 'Asia/Shanghai'
+        dateTime: startDateTime.toISOString(),
+	timeZone: 'Asia/Shanghai'
       },
       end: {
-        dateTime: endDateTime.toISOString().slice(0, -1) + '+08:00',
-        timeZone: 'Asia/Shanghai'
+        dateTime: endDateTime.toISOString(),
+	timeZone: 'Asia/Shanghai'
       },
       location: v.location,
       description: '老师：' + v.teacherName,

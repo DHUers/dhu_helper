@@ -293,12 +293,19 @@ function fetchCourseTablePage() {
 }
 
 function getFirstDate(info) {
-  if (parseInt(info[1]) == 2013 && parseInt(info[3]) == 1)
+  if (parseInt(info[1]) == 2013 && parseInt(info[3]) == 1) {
     return {
       year: 2013,
       month: 9,
       day: 1
     };
+  } else if (parseInt(info[1]) == 2013 && parseInt(info[3]) == 2) {
+    return {
+      year: 2014,
+      month: 2,
+      day: 23
+    };
+  }
 }
 
 function getClassTime(classNumber) {
