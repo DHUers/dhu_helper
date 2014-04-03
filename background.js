@@ -18,7 +18,7 @@ function validateToken(token) {
 }
 
 function authGoogle(sendResponse) {
-  var authUrl = encodeURI('https://accounts.google.com/o/oauth2/auth?redirect_uri=http://algalon.net/oauth2callback&client_id=' + clientId + '&response_type=token&scope=https://www.googleapis.com/auth/calendar')
+  var authUrl = encodeURI('https://accounts.google.com/o/oauth2/auth?redirect_uri=https://algalon.net/oauth2callback&client_id=' + clientId + '&response_type=token&scope=https://www.googleapis.com/auth/calendar')
   var windowProperties = {
     url: authUrl,
     left: 300,
@@ -31,7 +31,7 @@ function authGoogle(sendResponse) {
   chrome.windows.create(windowProperties, function(window) {
     chrome.tabs.onUpdated.addListener(function(tabId, changeInfo) {
       var url = changeInfo.url;
-      if (url && url.indexOf('http://algalon.net/oauth2callback') != -1) {
+      if (url && url.indexOf('https://algalon.net/oauth2callback') != -1) {
         accessToken = url.split('#')[1].split('&')[0].split('=')[1];
         chrome.windows.remove(window.id);
         sendResponse({status: validateToken(accessToken)});
