@@ -1,0 +1,65 @@
+{
+  "manifest_version": 2,
+  "name": "DHU助手",
+  "version": "0.4.0",
+  "description": "移除教务首页漂浮窗，同步课表至Google Calendar",
+  "icons": {
+    "128": "images/icon.png"
+  },
+  "author": "Erick Guan",
+  "homepage_url": "https://algalon.net/dhu-%E5%8A%A9%E6%89%8B/r",
+  "minimum_chrome_version": "22",
+  "content_scripts": [
+    {
+      "matches": ["http://jw.dhu.edu.cn/dhu/student/"],
+      "css": ["css/blockFloat.css"],
+      "run_at": "document_start"
+    }, {
+      "matches": ["http://jw.dhu.edu.cn/dhu/student/selectcourse/seeselectedcourse.jsp"],
+      "css": [
+        "vendor/bootstrap/dist/css/bootstrap.min.css",
+        "vendor/bootstrap/dist/css/bootstrap-theme.min.css",
+        "css/main.css"
+      ],
+      "js": [
+        "vendor/jquery/jquery.js",
+        "vendor/bootstrap/dist/js/bootstrap.min.js",
+        "calendar.js",
+        "course_parser.js"
+      ]
+    }, {
+      "matches": ["http://jw.dhu.edu.cn/dhu/student/selectcourse/selectCourse_ts.jsp"],
+      "css": [
+        "vendor/bootstrap/dist/css/bootstrap.min.css",
+        "vendor/bootstrap/dist/css/bootstrap-theme.min.css",
+        "vendor/fullcalendar/fullcalendar.css",
+        "css/main.css"
+      ],
+      "js": [
+        "vendor/jquery/jquery.js",
+        "vendor/bootstrap/dist/js/bootstrap.min.js",
+        "vendor/fullcalendar/fullcalendar.min.js",
+        "vendor/fullcalendar/gcal.js",
+        "select_course.js"
+      ]
+    }, {
+      "matches": ["http://jw.dhu.edu.cn/dhu/student/selectcourse/teachclasslist.jsp*"],
+      "css": [
+        "css/main.css"
+      ],
+      "js": [
+        "vendor/jquery/jquery.js",
+        "filter_course.js"
+      ]
+    }
+  ],
+  "background": {
+    "scripts": [
+      "vendor/jquery/jquery.js",
+      "background.js"
+    ]
+  },
+  "permissions": [
+    "tabs"
+  ]
+}
