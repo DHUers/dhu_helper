@@ -59,7 +59,7 @@ onSaveCurriculumButtonClick = (e) ->
 
 saveCurriculum = (data) ->
   calendar =
-    calendar: data
+    curriculum: data
     lastUpdated: moment().format('MMMDo h:mm:ss');
   console.log calendar
 
