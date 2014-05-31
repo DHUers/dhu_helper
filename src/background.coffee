@@ -1,12 +1,15 @@
-###class GoogleCalendarHandler
+class GoogleCalendarHandler
   clientId = '291063324882-u8caq69qaen8ig8i60mqbqeu2em5sucs.apps.googleusercontent.com'
-  authUrl = encodeURI('https://accounts.google.com/o/oauth2/auth?redirect_uri=https://algalon.net/oauth2callback&client_id=' + clientId + '&response_type=token&scope=https://www.googleapis.com/auth/calendar')
+  authUrl = "https://accounts.google.com/o/oauth2/auth?redirect_uri=https://algalon.net/oauth2callback&client_id=#{clientId}&response_type=token&scope=https://www.googleapis.com/auth/calendar"
+  callbackUrl = 'https://algalon.net/oauth2callback'
 
   constructor: () ->
 
   auth: (sendResponse) ->
+    self = @
+
     windowProperties =
-      url: authUrl
+      url: encodeURI authUrl
       left: 300
       top: 280
       width: 700
@@ -14,78 +17,80 @@
       focused: true
       type: 'popup'
 
-    chrome.windows.create(windowProperties, (window) =>
-      chrome.tabs.onUpdated.addListener((tabId, changeInfo) =>
+    chrome.windows.create windowProperties, (window) ->
+      chrome.tabs.onUpdated.addListener (tabId, changeInfo) ->
         url = changeInfo.url
-        if (url && url.indexOf('https://algalon.net/oauth2callback') != -1)
-          @accessToken = url.split('#')[1].split('&')[0].split('=')[1]
-          chrome.windows.remove(window.id)
-          sendResponse({status: @_validateToken(@accessToken)})
+        if url && url.indexOf callbackUrl != -1
+          self.accessToken = url.split('#')[1].split('&')[0].split('=')[1]
+          chrome.windows.remove window.id
+          sendResponse {status: self._validateToken self.accessToken}
+
+  header: ->
+    headers =
+      Authorization: 'Bearer ' + @accessToken
 
   refreshCalendar: (calendarSummary, sendResponse) ->
-    header = 
-      Authorization: 'Bearer ' + accessToken
-
     self = @
-    $.ajax(
+    self.calendarId = null
+
+    payload = JSON.stringify
+                summary: calendarSummary
+                timeZone: 'Asia/Shanghai'
+              
+
+    $.ajax
       type: 'get'
       url: 'https://www.googleapis.com/calendar/v3/users/me/calendarList'
-      headers: header
-      success: (data) =>
-        found = false
-        if data.items
-          for (i = 0; i < data.items.length; i++)
-            item = data.items[i]
-            if item.summary && item.summary === calendarSummary
-              found = true
-              break
-    
-        unless found
-          $.ajax(
+      headers: self.header()
+      success: (data) ->
+        for k, v of data.items?
+          if v.summary && v.summary == calendarSummary
+            self.calendarId = v.id
+            break
+
+        unless self.calendarId
+          $.ajax
             type: 'post'
             url: 'https://www.googleapis.com/calendar/v3/calendars'
-            headers: header
+            headers: self.header()
             contentType: 'application/json'
-            data: JSON.stringify(
-              summary: calendarSummary
-              timeZone: 'Asia/Shanghai'
-            )
+            data: payload
             success: (data) ->
               self.calendarId = data.id
-              getCalendarInfo(sendResponse)
+              self._getCalendarInfo sendResponse
+
         else
-          self.calendarId = item.id
-          getCalendarInfo(sendResponse)
+          self._getCalendarInfo sendResponse
+
 
   _getCalendarInfo: (sendResponse) ->
-    header =
-      Authorization: 'Bearer ' + accessToken
-    $.ajax(
+    $.ajax
       type: 'get'
-      url: 'https://www.googleapis.com/calendar/v3/users/me/calendarList/' + calendarId
-      headers: header
+      url: 'https://www.googleapis.com/calendar/v3/users/me/calendarList/' + @calendarId
+      headers: @.header()
       success: (data) ->
         sendResponse {defaultReminders: data.defaultReminders}
-    )
 
   _validateToken: (token) ->
+    self = @
+
     validated = false
-    $.ajax(
+    $.ajax
       type: 'get'
       url: 'https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=' + token
       async: false
-      success: (data) =>
-        validated = data.audience === clientId
+      success: (data) ->
+        validated = data.audience == clientId
 
     return validated
-
+"""
   syncEvent: (data, sendResponse) ->
-    header =
-      {Authorization: 'Bearer ' + accessToken}
+    self = @
+
     $.ajax(
       type: 'patch'
       url: 'https://www.googleapis.com/calendar/v3/users/me/calendarList/' + calendarId
-      headers: header
+      headers: self.header
       contentType: 'application/json'
       data: JSON.stringify(
         defaultReminders: data.calendarInfo
@@ -98,14 +103,14 @@
     $.ajax(
       type: 'get'
       url: 'https://www.googleapis.com/calendar/v3/calendars/' + calendarId + '/events?timeMin=' + encodeURI(date.toISOString())
-      headers: header
+      headers: self.header
       async: false
       success: (response) ->
         for (key = 0; key < response.items; ++key)
           $.ajax(
             type: 'delete'
             url: 'https://www.googleapis.com/calendar/v3/calendars/' + calendarId + '/events/' + response.items[key].id
-            headers: header
+            headers: self.header
             tryCount: 0
             retryLimit: 3
             error: ->
@@ -149,13 +154,13 @@
       $.ajax(
         type: 'post'
         url: 'https://www.googleapis.com/calendar/v3/calendars/' + calendarId + '/events'
-        headers: header
+        headers: self.header
         contentType: 'application/json'
         async: false
         tryCount: 0
         retryLimit: 3
         data: requestBody
-        error: () ->
+        error: ->
           if (@tryCount <= @retryLimit)
             @tryCount++
             $.ajax(@)
@@ -164,55 +169,31 @@
 
     sendResponse(true);
 
-    _generateRecurrenceRule: (type, weekRange) ->
-      if type === 'FULL'
-        return 'RRULE:FREQ=WEEKLY;COUNT=' + parseInt(parseInt(weekRange[weekRange.length - 1]) - parseInt(weekRange[0]) + 1);
-      else if type === 'HALF'
-        return 'RRULE:FREQ=WEEKLY;INTERVAL=2;COUNT=' + parseInt((parseInt(weekRange[weekRange.length - 1]) - parseInt(weekRange[0])) / 2 + 1);
-
-handler = new GoogleCalendarHandler()
-
-chrome.runtime.onMessage.addListener (request, sender, sendResponse) ->
-  if (request.type == 'AUTH_GOOGLE')
-    handler.auth(sendResponse)
-  else if (request.type == 'GET_CALENDAR_INFO')
-    handler.refreshCalendar(request.data, sendResponse)
-  else if (request.type == 'SYNC_CALENDAR_EVENT')
-    handler.syncEvent(request.data, sendResponse)
-
-  return true # keep the message channel open to the other end until sendResponse is called
-###
-
+  _generateRecurrenceRule: (type, weekRange) ->
+    if type === 'FULL'
+      return 'RRULE:FREQ=WEEKLY;COUNT=' + parseInt(parseInt(weekRange[weekRange.length - 1]) - parseInt(weekRange[0]) + 1);
+    else if type === 'HALF'
+      return 'RRULE:FREQ=WEEKLY;INTERVAL=2;COUNT=' + parseInt((parseInt(weekRange[weekRange.length - 1]) - parseInt(weekRange[0])) / 2 + 1);
+"""
 
 class DHUHelper
+  constructor: ->
+    @handler = new GoogleCalendarHandler()
+
   addChromeChannel: ->
     self = @
 
     chrome.runtime.onMessage.addListener (request, sender, sendResponse) ->
       switch request.type
         when 'AUTH_GOOGLE'
-          true
-          #handler.auth(sendResponse)
+          self.handler.auth(sendResponse)
         when 'GET_CALENDAR_INFO'
           true
           #handler.refreshCalendar(request.data, sendResponse)
         when 'SYNC_CALENDAR_EVENT'
           true
           #handler.syncEvent(request.data, sendResponse)
-        when 'PARSE_SELECT_COURSE'
-          self.parseSelectCoursePage request.data, sendResponse
-        when 'PARSE_CURRICULUM'
-          self.parseCurriculum request.data, sendResponse
-
       return true # keep the message channel open to the other end until sendResponse is called
-
-  parseCurriculum: (data, sendResponse) ->
-    parser = new CourseParser data
-    sendResponse parser.parseCurriculum()
-
-  parseSelectCoursePage: (data, sendResponse) ->
-    parser = new CourseParser data
-    snedResponse parser.parseSelectCoursePage()
 
   run: ->
     @addChromeChannel()
