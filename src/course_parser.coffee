@@ -46,6 +46,7 @@ class CourseParser
     details =
       enrolled: @parseEnrolledCourseTable()
       ideal: @parseIdealCourseTable()
+      termInfo: @termInfo
 
   _nthTdChild: (id, excludeNestedTable = false) ->
     template = "td:nth-child(#{id + 1})"
