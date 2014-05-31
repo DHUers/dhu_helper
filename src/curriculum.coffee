@@ -1,4 +1,5 @@
 CourseParser = window.CourseParser
+DHUInternel = window.DHUInternel
 
 sidebarTemplate = """<ul id="sidebar">
   <li><span id="last-updated">未保存课表信息</span></li>
@@ -118,6 +119,7 @@ validateMeta = ->
   $('#calendar-name').attr('value').length > 0
 
 syncCalendar = ->
+  # get filled wizard
   calendarName = $('#calendar-name').attr('value')
 
   methods = $('.calendar-remind-method').map(-> return $(@).val()).get()
@@ -128,6 +130,12 @@ syncCalendar = ->
     calendarReminder.push
       method: methods[i]
       minutes: time[i]
+
+  chrome.runtime.sendMessage
+    type: 'SYNC_CALENDAR_EVENT'
+    data:
+      name: calendarName
+      reminder: calendarReminder
 
 sidebarOptions =
   position: 'right'
