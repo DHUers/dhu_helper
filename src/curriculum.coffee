@@ -61,6 +61,7 @@ saveCurriculum = (data) ->
   calendar =
     calendar: data
     lastUpdated: moment().format('MMMDo h:mm:ss');
+  console.log calendar
 
   chrome.storage.local.set calendar, ->
     refreshLastUpdated
