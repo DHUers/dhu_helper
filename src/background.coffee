@@ -182,3 +182,40 @@ chrome.runtime.onMessage.addListener (request, sender, sendResponse) ->
 
   return true # keep the message channel open to the other end until sendResponse is called
 ###
+
+
+class DHUHelper
+  addChromeChannel: ->
+    self = @
+
+    chrome.runtime.onMessage.addListener (request, sender, sendResponse) ->
+      switch request.type
+        when 'AUTH_GOOGLE'
+          true
+          #handler.auth(sendResponse)
+        when 'GET_CALENDAR_INFO'
+          true
+          #handler.refreshCalendar(request.data, sendResponse)
+        when 'SYNC_CALENDAR_EVENT'
+          true
+          #handler.syncEvent(request.data, sendResponse)
+        when 'PARSE_SELECT_COURSE'
+          self.parseSelectCoursePage request.data, sendResponse
+        when 'PARSE_CURRICULUM'
+          self.parseCurriculum request.data, sendResponse
+
+      return true # keep the message channel open to the other end until sendResponse is called
+
+  parseCurriculum: (data, sendResponse) ->
+    parser = new CourseParser data
+    sendResponse parser.parseCurriculum()
+
+  parseSelectCoursePage: (data, sendResponse) ->
+    parser = new CourseParser data
+    snedResponse parser.parseSelectCoursePage()
+
+  run: ->
+    @addChromeChannel()
+
+app = new DHUHelper()
+app.run()

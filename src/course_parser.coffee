@@ -37,14 +37,15 @@ class CourseParser
     location: 2
 
   constructor: ->
-    @termInfo = $(TERM_INFO_SELECTOR)
+    @termInfo = $(TERM_INFO_SELECTOR).text()
 
     @enrolledCourses = []
     @idealCourses = []
 
-  parse: ->
-    @parseEnrolledCourseTable()
-    @parseIdealCourseTable()
+  parseCurriculum: ->
+    details =
+      enrolled: @parseEnrolledCourseTable()
+      ideal: @parseIdealCourseTable()
 
   _nthTdChild: (id, excludeNestedTable = false) ->
     template = "td:nth-child(#{id + 1})"
@@ -138,3 +139,8 @@ class CourseParser
 
   parseIdealCourseTable: ->
     @idealCourses = @_parseCourseTable(IDEAL_COURSE_TABLE_SELECTOR)
+
+  parseSelectCoursePage: ->
+    #@selectCourse = @_parseSelectCour
+
+window.CourseParser = CourseParser
