@@ -1,0 +1,50 @@
+{
+    "name": "dhu_helper",
+    "description": "移除教务首页漂浮窗，同步课表至Google Calendar",
+    "version": "0.4.0",
+    "homepage": "https://algalon.net/dhu-%E5%8A%A9%E6%89%8B/",
+    "bugs": {
+      "url": "https://github.com/fantasticfears/dhu_helper/issues"
+    },
+    "author": {
+        "name": "Erick Guan",
+        "email": "fantasticfears@gmail.com",
+        "url": "https://algalon.net"
+    },
+    "licenses": [{
+      "type": "GPLv3",
+      "url": "http://template-extension.org/license"
+    }],
+    "private": true,
+    "keywords": [
+        "template",
+        "browser",
+        "chrome",
+        "extension",
+        "clipboard",
+        "shortener",
+        "clipboard",
+        "shortener",
+        "markdown",
+        "bbcode",
+        "html",
+        "social"
+    ],
+    "repository": {
+      "type": "git",
+      "url": "git@github.com:fantasticfears/dhu_helper.git"
+    },
+    "devDependencies": {
+      "grunt": "~0.4.1",
+      "grunt-contrib-clean": "~0.5.0",
+      "grunt-contrib-compress": "~0.7.0",
+      "grunt-contrib-copy": "~0.5.0",
+      "grunt-contrib-coffee": "~0.10.1",
+      "grunt-contrib-uglify": "~0.3.2",
+      "grunt-docco": "~0.3.3",
+      "grunt-json-minify": "~0.4.0"
+    },
+    "engines": {
+      "node": "~0.10.0"
+    }
+}

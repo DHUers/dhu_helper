@@ -1,0 +1,45 @@
+#sync_button {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+}
+
+#control-display-button {
+  position: fixed;
+  top: 5px;
+  right: 5px;
+}
+
+#sync_panel {
+  position: absolute;
+  z-index: 9999;
+  top: 150px;
+  left: 40%;
+  margin: 0 auto;
+  min-height: 100px;
+  min-width: 400px;
+}
+
+#sync_panel_body p {
+  font-weight: bold;
+}
+
+.panel-button {
+  text-align: center;
+}
+
+#sync_calendar {
+  margin-top: 5px;
+}
+
+#reminder-setting .row, #add-reminder-setting {
+  margin-top: 5px;
+}
+
+.hide-course {
+  display: none;
+}
+
+.course-item:hover {
+  background-color: #ffffbf;
+}
