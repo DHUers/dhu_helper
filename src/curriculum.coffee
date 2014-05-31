@@ -129,7 +129,7 @@ syncCalendar = ->
       method: methods[i]
       minutes: time[i]
 
-options =
+sidebarOptions =
   position: 'right'
   open: 'click'
 
@@ -140,4 +140,4 @@ $(document).ready ->
   $('#save-curriculum').on 'click', onSaveCurriculumButtonClick
   $('#sync-curriculum').on 'click', onSyncCurriculumButtonClick
 
-  $('#sidebar').sidebar options
+  $('#sidebar').sidebar sidebarOptions
