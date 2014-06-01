@@ -162,7 +162,8 @@ class GoogleCalendarHandler
         headers: self.header()
         async: false
         success: (response) ->
-          for key, v of response.items
+          return unless response.items
+          for i, v of response.items
             $.ajax
               type: 'delete'
               url: "https://www.googleapis.com/calendar/v3/calendars/#{self.calendarId}/events/#{v.id}"
@@ -170,6 +171,7 @@ class GoogleCalendarHandler
               tryCount: 0
               retryLimit: 3
               error: ->
+                console.log tryConut
                 if @tryCount <= @retryLimit
                   @tryCount++
                   $.ajax(@)
@@ -235,6 +237,8 @@ class GoogleCalendarHandler
     payloads
 
   _insertEvent: (curriculum) ->
+    self = @
+
     payloads = @_generateEventPayloads(curriculum)
 
     console.log payloads
@@ -244,7 +248,7 @@ class GoogleCalendarHandler
 
       $.ajax
         type: 'post'
-        url: "https://www.googleapis.com/calendar/v3/calendars/#{@calendarId}/events"
+        url: "https://www.googleapis.com/calendar/v3/calendars/#{self.calendarId}/events"
         headers: self.header()
         contentType: 'application/json'
         async: false
@@ -257,19 +261,19 @@ class GoogleCalendarHandler
             $.ajax(@)
             return
 
-    sendResponse(true);
-
   syncCalendarEvent: (data) ->
     self = @
     @addCalendar data
 
   _generateRecurrenceRule: (detail) ->
-    prefix = 'RRULE:FREQ=WEEKLY;'
+    rule = 'RRULE:FREQ=WEEKLY;'
     switch detail[0] # type
       when 'FULL'
-        return prefix + "COUNT=#{detail[2] - detail[1] + 1}"
+        rule += "COUNT=#{detail[2] - detail[1] + 1}"
       when 'HALF'
-        return prefix + "RRULE:FREQ=WEEKLY;INTERVAL=2;COUNT=#{(detail[2] - detail[1]) / 2 + 1}"
+        rule += "RRULE:FREQ=WEEKLY;INTERVAL=2;COUNT=#{(detail[2] - detail[1]) / 2 + 1}"
+
+    [rule]
 
 class DHUHelper
   constructor: ->
