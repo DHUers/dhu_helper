@@ -4,7 +4,6 @@
   "dependencies": {
     "jquery": "1.10",
     "bootstrap": "latest",
-    "fullcalendar": "latest",
     "jquery.sidebar": "latest",
     "momentjs": "latest",
     "jquery-steps": "latest"
