@@ -11,6 +11,7 @@ sidebarTemplate = """<ul id="sidebar">
 syncPanelTemplate = """<div id="sync-panel" class="panel panel-success">
   <div class="panel-heading">
     <h3 class="panel-title">设置</h3>
+    <span id="close-panel" class="pull-right">x</span>
   </div>
   <div id="sync-panel-body" class="panel-body">
   </div>
@@ -48,6 +49,54 @@ reminderSettingTemplate = """
   <button class="btn btn-danger calendar-remind-delete-button">删除</button>
 </form>
 """
+class Wizard
+  setting =
+    enableKeyNavigation: false
+    enablePagination: false
+    onFinishing: validateMeta
+    onFinished: syncCalendar
+
+  run: ->
+    self = @
+
+    @wizard = $('#sync-panel-body').steps(setting)
+
+    # Step: 1
+    oauth2WithGoogle =
+      title: '授权'
+      content: oauth2WithGoogleStepTemplate
+    @wizard.steps 'add', oauth2WithGoogle
+
+    authGoogleButton = $('#auth-google')
+    authGoogleButton.click ->
+      authGoogleButton.prop 'disabled', true
+      chrome.runtime.sendMessage {type: 'AUTH_GOOGLE'}, (response) ->
+        console.log "Step 1: #{response.status}" 
+        if response.status
+          self.wizard.steps 'next'
+        else
+          authGoogleButton.prop 'disabled', false
+
+    # Step: 2
+    calendarMeta =
+      title: '日历设置'
+      content: calendarMetaTemplate
+    @wizard.steps 'add', calendarMeta
+    $('#add-reminder-setting').click ->
+      $('#reminder-setting').append(reminderSettingTemplate)
+      $('.calendar-remind-delete-button').each ->
+        $(@).click ->
+          $(@).parent().remove()
+
+    $('#sync-calendar').click ->
+      self.wizard.steps 'finish'
+      self.close()
+
+  close: ->
+    @wizard.steps 'destroy'
+    closePanel()
+
+wizard = new Wizard()
 
 generateCollisionTable = (data) ->
   collisionTable = {}
@@ -90,44 +139,8 @@ syncCalendar = (event, currentIndex) ->
 
   $('#sync-panel').remove()
 
-wizard = ->
-  setting =
-    enableKeyNavigation: false
-    enablePagination: false
-    onFinishing: validateMeta
-    onFinished: syncCalendar
-
-  wizard = $('#sync-panel-body').steps(setting)
-
-  # Step: 1
-  oauth2WithGoogle =
-    title: '授权'
-    content: oauth2WithGoogleStepTemplate
-  wizard.steps 'add', oauth2WithGoogle
-
-  authGoogleButton = $('#auth-google')
-  authGoogleButton.click ->
-    authGoogleButton.prop 'disabled', true
-    chrome.runtime.sendMessage {type: 'AUTH_GOOGLE'}, (response) ->
-      console.log "Step 1: #{response.status}" 
-      if response.status
-        wizard.steps 'next'
-      else
-        authGoogleButton.prop 'disabled', false
-
-  # Step: 2
-  calendarMeta =
-    title: '日历设置'
-    content: calendarMetaTemplate
-  wizard.steps 'add', calendarMeta
-  $('#add-reminder-setting').click ->
-    $('#reminder-setting').append(reminderSettingTemplate)
-    $('.calendar-remind-delete-button').each ->
-      $(@).click ->
-        $(@).parent().remove()
-
-  $('#sync-calendar').click ->
-    wizard.steps 'next'
+closePanel = ->
+  $('#sync-panel').remove()
 
 onSaveCurriculumButtonClick = (e) ->
   e.preventDefault()
@@ -156,8 +169,11 @@ onSyncCurriculumButtonClick = (e) ->
   e.preventDefault()
 
   $('body').append syncPanelTemplate
+  $('#close-panel').on 'click', (e) ->
+    e.preventDefault()
+    wizard.close()
 
-  wizard()
+  wizard.run()
 
 sidebarOptions =
   position: 'right'

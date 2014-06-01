@@ -31,6 +31,14 @@ a:visited {
   min-width: 550px;
 }
 
+#sync-panel h3 {
+  display: inline-block;
+}
+
+#close-panel:hover {
+  border: 1px solid #333;
+}
+
 #sync-panel-body p {
   font-weight: bold;
 }
