@@ -1,7 +1,7 @@
 {
     "name": "dhu_helper",
     "description": "移除教务首页漂浮窗；同步课表至Google Calendar；选课提示",
-    "version": "0.4.3",
+    "version": "0.4.4",
     "homepage": "https://algalon.net/dhu-%E5%8A%A9%E6%89%8B/",
     "bugs": {
       "url": "https://github.com/fantasticfears/dhu_helper/issues"
