@@ -15,7 +15,7 @@
       "css": ["css/blockFloat.css"],
       "run_at": "document_start"
     }, {
-      "matches": ["http://jw.dhu.edu.cn/dhu/student/selectcourse/seeselectedcourse.jsp"],
+      "matches": ["http://jw.dhu.edu.cn/dhu/student/selectcourse/seeselectedcourse.jsp*"],
       "css": [
         "vendor/bootstrap/dist/css/bootstrap.min.css",
         "vendor/bootstrap/dist/css/bootstrap-theme.min.css",

@@ -35,18 +35,18 @@ calendarMetaTemplate = """
 <button id="sync-calendar" type="button" class="btn btn-large btn-success">同步</button></div>
 """
 reminderSettingTemplate = """
-<div class="row">
-  <div class="col-lg-4">
-    <select class="calendar-remind-method form-control" required>
-      <option value="email">电子邮件</option>
-      <option value="popup" selected>弹出窗口</option>
-    </select>
+<form class="form-inline calendar-remind">
+  <div class="form-group">
+  <select class="calendar-remind-method form-control" required>
+    <option value="email">电子邮件</option>
+    <option value="popup" selected>弹出窗口</option>
+  </select>
   </div>
-  <div class="col-lg-6">
-    <input class="calendar-remind-time form-control" type="number" step="1" value="18" max="30" max="1" required>
+  <div class="form-group">
+  <input class="calendar-remind-time form-control" type="number" step="1" value="18" max="30" max="1" required>
   </div>
   <button class="btn btn-danger calendar-remind-delete-button">删除</button>
-</div>
+</form>
 """
 
 generateCollisionTable = (data) ->
@@ -66,38 +66,34 @@ generateCollisionTable = (data) ->
 
   collisionTable
 
-onSaveCurriculumButtonClick = (e) ->
-  e.preventDefault()
+validateMeta = (event, currentIndex) ->
+  $('#calendar-name').attr('value').length > 0
 
-  parser = new CourseParser
-  calendar = parser.parseCurriculum()
+syncCalendar = (event, currentIndex) ->
+  # get filled wizard
+  calendarName = $('#calendar-name').attr('value')
 
-  saveCurriculum calendar
+  methods = $('.calendar-remind-method').map(-> return $(@).val()).get()
+  time = $('.calendar-remind-time').map(-> return $(@).attr('value')).get()
 
-saveCurriculum = (data) ->
-  calendar =
-    curriculum: data
-    lastUpdated: moment().format('MMMDo h:mm:ss')
-    collisionTable: generateCollisionTable data
+  calendarReminder = []
+  for i, v of methods
+    calendarReminder.push
+      method: methods[i]
+      minutes: time[i]
 
-  console.log calendar
+  chrome.runtime.sendMessage
+    type: 'SYNC_CALENDAR_EVENT'
+    data:
+      name: calendarName
+      reminder: calendarReminder
 
-  chrome.storage.local.set calendar, ->
-    refreshLastUpdated
-
-refreshLastUpdated = ->
-  chrome.storage.local.get 'lastUpdated', (blob) ->
-    $('#last-updated').text blob.lastUpdated
-
-onSyncCurriculumButtonClick = (e) ->
-  e.preventDefault()
-
-  $('body').append syncPanelTemplate
-
-  wizard()
+  $('#sync-panel').remove()
 
 wizard = ->
   setting =
+    enableKeyNavigation: false
+    enablePagination: false
     onFinishing: validateMeta
     onFinished: syncCalendar
 
@@ -107,7 +103,6 @@ wizard = ->
   oauth2WithGoogle =
     title: '授权'
     content: oauth2WithGoogleStepTemplate
-    enablePagination: false
   wizard.steps 'add', oauth2WithGoogle
 
   authGoogleButton = $('#auth-google')
@@ -134,29 +129,35 @@ wizard = ->
   $('#sync-calendar').click ->
     wizard.steps 'next'
 
-validateMeta = (event, currentIndex) ->
-  $('#calendar-name').attr('value').length > 0
+onSaveCurriculumButtonClick = (e) ->
+  e.preventDefault()
 
-syncCalendar = (event, currentIndex) ->
-  # get filled wizard
-  calendarName = $('#calendar-name').attr('value')
+  saveCurriculum()
 
-  methods = $('.calendar-remind-method').map(-> return $(@).val()).get()
-  time = $('.calendar-remind-time').map(-> return $(@).attr('value')).get()
+saveCurriculum = ->
+  parser = new CourseParser
+  data = parser.parseCurriculum()
 
-  calendarReminder = []
-  for i, v of methods
-    calendarReminder.push
-      method: methods[i]
-      minutes: time[i]
+  calendar =
+    curriculum: data
+    lastUpdated: moment().format('MMMDo h:mm:ss')
+    collisionTable: generateCollisionTable data
 
-  chrome.runtime.sendMessage
-    type: 'SYNC_CALENDAR_EVENT'
-    data:
-      name: calendarName
-      reminder: calendarReminder
+  console.log calendar
 
-  $('#sync-panel').remove()
+  chrome.storage.local.set calendar, ->
+    refreshLastUpdated()
+
+refreshLastUpdated = ->
+  chrome.storage.local.get 'lastUpdated', (blob) ->
+    $('#last-updated').text blob.lastUpdated
+
+onSyncCurriculumButtonClick = (e) ->
+  e.preventDefault()
+
+  $('body').append syncPanelTemplate
+
+  wizard()
 
 sidebarOptions =
   position: 'right'
@@ -166,6 +167,7 @@ $(document).ready ->
   $('body').append sidebarTemplate
 
   refreshLastUpdated()
+  saveCurriculum()
   $('#save-curriculum').on 'click', onSaveCurriculumButtonClick
   $('#sync-curriculum').on 'click', onSyncCurriculumButtonClick
 

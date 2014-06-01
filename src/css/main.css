@@ -28,7 +28,7 @@ a:visited {
   left: 40%;
   margin: 0 auto;
   min-height: 100px;
-  min-width: 400px;
+  min-width: 550px;
 }
 
 #sync-panel-body p {
@@ -45,6 +45,10 @@ a:visited {
 
 #reminder-setting .row, #add-reminder-setting {
   margin-top: 5px;
+}
+
+.calendar-remind div {
+  display: inline-block;
 }
 
 .hide-course {

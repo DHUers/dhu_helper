@@ -1,16 +1,18 @@
 CourseParser = window.CourseParser
 
 collisionTest = (course, collisionTable) ->
+  console.log course, collisionTable
+
   for i, detail of course
     weekNums = if detail.week[0] == 'SINGLE' then detail.week[1..] else [detail.week[1]..detail.week[2]]
 
     for j, weekNum of weekNums
       if collisionTable[weekNum] &&
-         collisionTable[weekNum][detail.time[0]] &&
-         $.inArray weekNum, collisionTable[weekNum][detail.time[0]] 
-        return true
-      
-      return false
+         collisionTable[weekNum][detail.time[0]]
+        for k, v of detail.time[1..]
+          return true if collisionTable[weekNum][detail.time[0]].indexOf(v) != -1
+
+  return false
 
 $(document).ready ->
   parser = new CourseParser
