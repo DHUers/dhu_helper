@@ -49,6 +49,21 @@ reminderSettingTemplate = """
 </div>
 """
 
+generateCollisionTable = (data) ->
+  collisionTable = {}
+  courses = data.enrolled.concat data.ideal
+
+  for i, course of courses
+    for j, detail of course.details
+      if detail.week[0] == 'SINGLE' # type
+        for weekNum in detail.week[1..]
+          collisionTable[weekNum] = {} unless collisionTable[weekNum]
+          collisionTable[weekNum][detail.time[0]] = (collisionTable[weekNum][detail.time[0]] || []).concat detail.time[1..]
+      else
+        for weekNum in [detail.week[1]..detail.week[2]]
+          collisionTable[weekNum] = {} unless collisionTable[weekNum]
+          collisionTable[weekNum][detail.time[0]] = (collisionTable[weekNum][detail.time[0]] || []).concat detail.time[1..]
+
 onSaveCurriculumButtonClick = (e) ->
   e.preventDefault()
 
@@ -59,8 +74,10 @@ onSaveCurriculumButtonClick = (e) ->
 
 saveCurriculum = (data) ->
   calendar =
-    calendarMeta: data
-    lastUpdated: moment().format('MMMDo h:mm:ss');
+    curriculum: data
+    lastUpdated: moment().format('MMMDo h:mm:ss')
+    collisionTable: generateCollisionTable data
+
   console.log calendar
 
   chrome.storage.local.set calendar, ->
