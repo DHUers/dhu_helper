@@ -4,7 +4,13 @@ collisionTest = (course, collisionTable) ->
   console.log course, collisionTable
 
   for i, detail of course
-    weekNums = if detail.week[0] == 'SINGLE' then detail.week[1..] else [detail.week[1]..detail.week[2]]
+    switch detail.week[0]
+      when 'SINGLE' then weekNums = detail.week[1..]
+      when 'FULL' then weekNums = [detail.week[1]..detail.week[2]]
+      when 'HALF'
+        weekNums = []
+        for number in [detail.week[1]..detail.week[2]] by 2
+          weekNums.push number
 
     for j, weekNum of weekNums
       if collisionTable[weekNum] &&
