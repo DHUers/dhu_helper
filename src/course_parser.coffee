@@ -51,9 +51,6 @@ class CourseParser
     @idealCourses = []
     @selectCourses = []
 
-  parseSelectCourse: ->
-    @selectCourses = @_parseCourseTable(SELECT_COURSE_TABLE_SELECTOR)
-
   parseCurriculum: ->
     details =
       enrolled: @parseEnrolledCourseTable()
@@ -155,6 +152,6 @@ class CourseParser
     @idealCourses = @_parseCourseTable(IDEAL_COURSE_TABLE_SELECTOR)
 
   parseSelectCoursePage: ->
-    #@selectCourse = @_parseSelectCour
+    @selectCourses = @_parseCourseTable(SELECT_COURSE_TABLE_SELECTOR)
 
 window.CourseParser = CourseParser

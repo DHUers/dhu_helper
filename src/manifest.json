@@ -35,7 +35,6 @@
     }, {
       "matches": ["http://jw.dhu.edu.cn/dhu/student/selectcourse/selectCourse_ts.jsp"],
       "css": [
-        "vendor/jquery.sidebar/css/blue-glass/sidebar.css",
         "css/main.css"
       ],
       "js": [
@@ -48,7 +47,6 @@
     }, {
       "matches": ["http://jw.dhu.edu.cn/dhu/student/selectcourse/teachclasslist.jsp*"],
       "css": [
-        "vendor/jquery.sidebar/css/blue-glass/sidebar.css",
         "css/main.css"
       ],
       "js": [

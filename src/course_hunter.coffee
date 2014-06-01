@@ -27,7 +27,8 @@ $(document).ready ->
   chrome.storage.local.get 'collisionTable', (blob) ->
     collisionTable = blob['collisionTable']
 
-    courses = parser.parseSelectCourse()
+    courses = parser.parseSelectCoursePage()
+    return unless courses
     for i, v of courses
       course = v.details
       if collisionTest course, collisionTable
