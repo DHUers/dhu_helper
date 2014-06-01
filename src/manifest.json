@@ -35,8 +35,6 @@
     }, {
       "matches": ["http://jw.dhu.edu.cn/dhu/student/selectcourse/selectCourse_ts.jsp"],
       "css": [
-        "vendor/bootstrap/dist/css/bootstrap.min.css",
-        "vendor/bootstrap/dist/css/bootstrap-theme.min.css",
         "vendor/jquery.sidebar/css/blue-glass/sidebar.css",
         "css/main.css"
       ],
@@ -44,7 +42,8 @@
         "vendor/jquery/jquery.js",
         "vendor/jquery-ui/ui/jquery-ui.js",
         "vendor/bootstrap/dist/js/bootstrap.js",
-        "vendor/jquery.sidebar/dist/jquery.sidebar.js"
+        "vendor/jquery.sidebar/dist/jquery.sidebar.js",
+        "select_course.js"
       ]
     }, {
       "matches": ["http://jw.dhu.edu.cn/dhu/student/selectcourse/teachclasslist.jsp*"],
@@ -59,7 +58,8 @@
         "vendor/jquery.sidebar/dist/jquery.sidebar.js",
         "vendor/momentjs/moment.js",
         "vendor/momentjs/lang/zh-cn.js",
-        "course_parser.js"
+        "course_parser.js",
+        "course_hunter.js"
       ]
     }
   ],
