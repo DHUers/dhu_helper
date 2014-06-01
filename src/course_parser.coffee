@@ -2,6 +2,7 @@ class CourseParser
   ENROLLED_COURSE_TABLE_SELECTOR = 'table[width="900"]'
   IDEAL_COURSE_TABLE_SELECTOR    = 'table[width="899"]'
   TERM_INFO_SELECTOR             = 'table[height="30"] caption'
+  SELECT_COURSE_TABLE_SELECTOR   = '#AutoNumber2'
 
   ENROLLED_COURSE_TABLE_COLUMN_ID =
     id: 0
@@ -35,12 +36,23 @@ class CourseParser
     weekRange: 0
     datetime: 1
     location: 2
+  SELECT_COURSE_TABLE_COLUMN_ID =
+    id: 0 # not actual id
+    name: 0 # no name
+    grade: 0 # no grade
+    internalId: 1
+    teacherName: 6
+    timeTable: 7
 
   constructor: ->
     @termInfo = $(TERM_INFO_SELECTOR).text()
 
     @enrolledCourses = []
     @idealCourses = []
+    @selectCourses = []
+
+  parseSelectCourse: ->
+    @selectCourses = @_parseCourseTable(SELECT_COURSE_TABLE_SELECTOR)
 
   parseCurriculum: ->
     details =
@@ -109,6 +121,7 @@ class CourseParser
         if withDelete then ENROLLED_COURSE_TABLE_COLUMN_ID_WITH_DELETE else ENROLLED_COURSE_TABLE_COLUMN_ID
       when IDEAL_COURSE_TABLE_SELECTOR
         if withDelete then IDEAL_COURSE_TABLE_COLUMN_ID_WITH_DELETE else IDEAL_COURSE_TABLE_COLUMN_ID
+      when SELECT_COURSE_TABLE_SELECTOR then SELECT_COURSE_TABLE_COLUMN_ID
 
   _parseCourseTable: (selector) ->
     self = @

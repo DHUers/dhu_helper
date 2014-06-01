@@ -64,6 +64,8 @@ generateCollisionTable = (data) ->
           collisionTable[weekNum] = {} unless collisionTable[weekNum]
           collisionTable[weekNum][detail.time[0]] = (collisionTable[weekNum][detail.time[0]] || []).concat detail.time[1..]
 
+  collisionTable
+
 onSaveCurriculumButtonClick = (e) ->
   e.preventDefault()
 
