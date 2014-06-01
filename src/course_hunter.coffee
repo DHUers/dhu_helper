@@ -16,6 +16,7 @@ collisionTest = (course, collisionTable) ->
       if collisionTable[weekNum] &&
          collisionTable[weekNum][detail.time[0]]
         for k, v of detail.time[1..]
+          #console.log collisionTable[weekNum][detail.time[0]], v
           return true if collisionTable[weekNum][detail.time[0]].indexOf(v) != -1
 
   return false
@@ -30,5 +31,6 @@ $(document).ready ->
     for i, v of courses
       course = v.details
       if collisionTest course, collisionTable
-        $("#AutoNumber2 tr:nth-child(#{(i + 1) * 2})").css 'background-color', 'red'
-        $("#AutoNumber2 tr:nth-child(#{(i + 1) * 2 + 1})").css 'background-color', 'red'
+        console.log "Highlight row #AutoNumber2 tr:nth-child(#{parseInt(i) + 2})"
+        $("#AutoNumber2 tr:nth-child(#{parseInt(i) + 2})").css('background-color', '#fc5050')
+        #$("#AutoNumber2 tr:nth-child(#{(i + 1) * 2 + 1})").css 'background-color', 'red'
