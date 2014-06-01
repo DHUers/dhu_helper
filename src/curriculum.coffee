@@ -3,9 +3,9 @@ DHUInternel = window.DHUInternel
 
 sidebarTemplate = """<ul id="sidebar">
   <li><span id="last-updated">未保存课表信息</span></li>
-  <li><button id="save-curriculum" class="btn btn-large btn-primary">保存课表</button></li>
+  <li><button id="save-curriculum" class="btn btn-large btn-success">保存课表</button></li>
   <hr>
-  <li><button id="sync-curriculum" class="btn btn-large btn-primary">与Google Calendar同步</button></li>
+  <li><button id="sync-curriculum" class="btn btn-large btn-success">与Google Calendar同步</button></li>
 </ul>
 """
 syncPanelTemplate = """<div id="sync-panel" class="panel panel-success">
@@ -59,7 +59,7 @@ onSaveCurriculumButtonClick = (e) ->
 
 saveCurriculum = (data) ->
   calendar =
-    curriculum: data
+    calendarMeta: data
     lastUpdated: moment().format('MMMDo h:mm:ss');
   console.log calendar
 
@@ -79,7 +79,6 @@ onSyncCurriculumButtonClick = (e) ->
 
 wizard = ->
   setting =
-    enablePagination: false
     onFinishing: validateMeta
     onFinished: syncCalendar
 
@@ -114,12 +113,12 @@ wizard = ->
         $(@).parent().remove()
 
   $('#sync-calendar').click ->
-    wizard.steps 'finish'
+    wizard.steps 'next'
 
-validateMeta = ->
+validateMeta = (event, currentIndex) ->
   $('#calendar-name').attr('value').length > 0
 
-syncCalendar = ->
+syncCalendar = (event, currentIndex) ->
   # get filled wizard
   calendarName = $('#calendar-name').attr('value')
 
@@ -137,6 +136,8 @@ syncCalendar = ->
     data:
       name: calendarName
       reminder: calendarReminder
+
+  $('#sync-panel').remove()
 
 sidebarOptions =
   position: 'right'
