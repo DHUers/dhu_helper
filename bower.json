@@ -1,6 +1,6 @@
 {
   "name": "dhu_helper",
-  "version": "0.4",
+  "version": "0.4.1",
   "dependencies": {
     "jquery": "1.10",
     "bootstrap": "latest",
