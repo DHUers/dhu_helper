@@ -1,13 +1,13 @@
 {
   "manifest_version": 2,
   "name": "DHU助手",
-  "version": "0.4.0",
-  "description": "移除教务首页漂浮窗，同步课表至Google Calendar",
+  "version": "0.4.4",
+  "description": "移除教务首页漂浮窗；同步课表至Google Calendar；选课提示",
   "icons": {
     "128": "images/icon.png"
   },
   "author": "Erick Guan",
-  "homepage_url": "https://algalon.net/dhu-%E5%8A%A9%E6%89%8B/r",
+  "homepage_url": "https://algalon.net/dhu-%E5%8A%A9%E6%89%8B/",
   "minimum_chrome_version": "22",
   "content_scripts": [
     {
@@ -15,7 +15,7 @@
       "css": ["css/blockFloat.css"],
       "run_at": "document_start"
     }, {
-      "matches": ["http://jw.dhu.edu.cn/dhu/student/selectcourse/seeselectedcourse.jsp"],
+      "matches": ["http://jw.dhu.edu.cn/dhu/student/selectcourse/seeselectedcourse.jsp*"],
       "css": [
         "vendor/bootstrap/dist/css/bootstrap.min.css",
         "vendor/bootstrap/dist/css/bootstrap-theme.min.css",
@@ -23,23 +23,25 @@
       ],
       "js": [
         "vendor/jquery/jquery.js",
-        "vendor/bootstrap/dist/js/bootstrap.min.js",
-        "calendar.js",
-        "course_parser.js"
+        "vendor/jquery-ui/ui/jquery-ui.js",
+        "vendor/bootstrap/dist/js/bootstrap.js",
+        "vendor/jquery.sidebar/dist/jquery.sidebar.js",
+        "vendor/momentjs/moment.js",
+        "vendor/momentjs/lang/zh-cn.js",
+        "vendor/jquery-steps/build/jquery.steps.js",
+        "course_parser.js",
+        "curriculum.js"
       ]
     }, {
       "matches": ["http://jw.dhu.edu.cn/dhu/student/selectcourse/selectCourse_ts.jsp"],
       "css": [
-        "vendor/bootstrap/dist/css/bootstrap.min.css",
-        "vendor/bootstrap/dist/css/bootstrap-theme.min.css",
-        "vendor/fullcalendar/fullcalendar.css",
         "css/main.css"
       ],
       "js": [
         "vendor/jquery/jquery.js",
-        "vendor/bootstrap/dist/js/bootstrap.min.js",
-        "vendor/fullcalendar/fullcalendar.min.js",
-        "vendor/fullcalendar/gcal.js",
+        "vendor/jquery-ui/ui/jquery-ui.js",
+        "vendor/bootstrap/dist/js/bootstrap.js",
+        "vendor/jquery.sidebar/dist/jquery.sidebar.js",
         "select_course.js"
       ]
     }, {
@@ -49,7 +51,13 @@
       ],
       "js": [
         "vendor/jquery/jquery.js",
-        "filter_course.js"
+        "vendor/jquery-ui/ui/jquery-ui.js",
+        "vendor/bootstrap/dist/js/bootstrap.js",
+        "vendor/jquery.sidebar/dist/jquery.sidebar.js",
+        "vendor/momentjs/moment.js",
+        "vendor/momentjs/lang/zh-cn.js",
+        "course_parser.js",
+        "course_hunter.js"
       ]
     }
   ],
@@ -60,6 +68,10 @@
     ]
   },
   "permissions": [
-    "tabs"
+    "tabs",
+    "storage"
+  ],
+  "web_accessible_resources": [
+    "images/*"
   ]
 }

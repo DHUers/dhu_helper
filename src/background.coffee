@@ -1,184 +1,297 @@
-###class GoogleCalendarHandler
+class DHUInternal
+  timeTableArray = [0,
+      start: [8, 15]
+      end: [9, 0]
+    ,
+      start: [9, 0]
+      end: [9, 45]
+    ,
+      start: [10, 5]
+      end: [10, 50]
+    ,
+      start: [10, 50]
+      end: [11, 35]
+    ,
+      start: [13, 0]
+      end: [13, 45]
+    ,
+      start: [13, 45]
+      end: [14, 30]
+    ,
+      start: [14, 50]
+      end: [15, 35]
+    ,
+      start: [15, 35]
+      end: [16, 20]
+    ,
+      start: [16, 20]
+      end: [17, 5]
+    ,
+      start: [18, 0]
+      end: [18, 45]
+    ,
+      start: [18, 45]
+      end: [19, 30]
+    ,
+      start: [19, 50]
+      end: [20, 35]
+    ,
+      start: [20, 35]
+      end: [21, 20]
+    ]
+  termBeginDate =
+    2013:
+      2:
+        year: 2014
+        month: 2
+        day: 23
+    2014:
+      1:
+        year: 2014
+        month: 9
+        day: 1
+
+  timeTable: (classNumber) ->
+    timeTableArray[classNumber]
+
+  firstDate: (info) ->
+    termInfoRegex = /.*(\d{4}).*(\d{4}).*(\d).*/
+    info = info.match termInfoRegex
+
+    return termBeginDate[parseInt(info[1])][parseInt(info[3])]
+
+class GoogleCalendarHandler
   clientId = '291063324882-u8caq69qaen8ig8i60mqbqeu2em5sucs.apps.googleusercontent.com'
-  authUrl = encodeURI('https://accounts.google.com/o/oauth2/auth?redirect_uri=https://algalon.net/oauth2callback&client_id=' + clientId + '&response_type=token&scope=https://www.googleapis.com/auth/calendar')
+  authUrl = "https://accounts.google.com/o/oauth2/auth?redirect_uri=https://algalon.net/oauth2callback&client_id=#{clientId}&response_type=token&scope=https://www.googleapis.com/auth/calendar"
+  callbackUrl = 'https://algalon.net/oauth2callback'
+  windowProperties =
+    url: encodeURI authUrl
+    left: 300
+    top: 280
+    width: 700
+    height: 600
+    focused: true
+    type: 'popup'
 
   constructor: () ->
+    @internal = new DHUInternal()
 
   auth: (sendResponse) ->
-    windowProperties =
-      url: authUrl
-      left: 300
-      top: 280
-      width: 700
-      height: 600
-      focused: true
-      type: 'popup'
-
-    chrome.windows.create(windowProperties, (window) =>
-      chrome.tabs.onUpdated.addListener((tabId, changeInfo) =>
-        url = changeInfo.url
-        if (url && url.indexOf('https://algalon.net/oauth2callback') != -1)
-          @accessToken = url.split('#')[1].split('&')[0].split('=')[1]
-          chrome.windows.remove(window.id)
-          sendResponse({status: @_validateToken(@accessToken)})
-
-  refreshCalendar: (calendarSummary, sendResponse) ->
-    header = 
-      Authorization: 'Bearer ' + accessToken
-
     self = @
-    $.ajax(
+
+    chrome.windows.create windowProperties, (window) ->
+      chrome.tabs.onUpdated.addListener (tabId, changeInfo) ->
+        url = changeInfo.url
+        if url && url.indexOf callbackUrl != -1
+          self.accessToken = url.split('#')[1].split('&')[0].split('=')[1]
+          chrome.windows.remove window.id
+          self._validateToken sendResponse
+
+  header: ->
+    headers =
+      Authorization: 'Bearer ' + @accessToken
+
+  addCalendar: (calendarMeta) ->
+    self = @
+    self.calendarId = null
+
+    # make sure we create the calendar list with the name
+    $.ajax
       type: 'get'
       url: 'https://www.googleapis.com/calendar/v3/users/me/calendarList'
-      headers: header
-      success: (data) =>
-        found = false
+      headers: self.header()
+      success: (data) ->
         if data.items
-          for (i = 0; i < data.items.length; i++)
-            item = data.items[i]
-            if item.summary && item.summary === calendarSummary
-              found = true
+          for k, v of data.items
+            if v.summary && v.summary == calendarMeta.name
+              self.calendarId = v.id
               break
-    
-        unless found
-          $.ajax(
+
+        unless self.calendarId
+          $.ajax
             type: 'post'
             url: 'https://www.googleapis.com/calendar/v3/calendars'
-            headers: header
+            headers: self.header()
             contentType: 'application/json'
-            data: JSON.stringify(
-              summary: calendarSummary
-              timeZone: 'Asia/Shanghai'
-            )
+            data: JSON.stringify
+                summary: calendarMeta.name
+                timeZone: 'Asia/Shanghai'
             success: (data) ->
               self.calendarId = data.id
-              getCalendarInfo(sendResponse)
+
+              self._setDefaultReminder(calendarMeta)
+            error: (error) ->
+              console.log error
         else
-          self.calendarId = item.id
-          getCalendarInfo(sendResponse)
+          self._setDefaultReminder(calendarMeta)
 
-  _getCalendarInfo: (sendResponse) ->
-    header =
-      Authorization: 'Bearer ' + accessToken
-    $.ajax(
-      type: 'get'
-      url: 'https://www.googleapis.com/calendar/v3/users/me/calendarList/' + calendarId
-      headers: header
-      success: (data) ->
-        sendResponse {defaultReminders: data.defaultReminders}
-    )
+  _setDefaultReminder: (calendarMeta) ->
+    self = @
 
-  _validateToken: (token) ->
-    validated = false
-    $.ajax(
-      type: 'get'
-      url: 'https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=' + token
-      async: false
-      success: (data) =>
-        validated = data.audience === clientId
-
-    return validated
-
-  syncEvent: (data, sendResponse) ->
-    header =
-      {Authorization: 'Bearer ' + accessToken}
-    $.ajax(
+    $.ajax
       type: 'patch'
-      url: 'https://www.googleapis.com/calendar/v3/users/me/calendarList/' + calendarId
-      headers: header
+      url: "https://www.googleapis.com/calendar/v3/users/me/calendarList/#{self.calendarId}"
+      headers: self.header()
       contentType: 'application/json'
-      data: JSON.stringify(
-        defaultReminders: data.calendarInfo
+      data: JSON.stringify
+        defaultReminders: calendarMeta.reminder
         timeZone: 'Asia/Shanghai'
-      )
+      success: (data) ->
+        self._syncEvents()
 
-    dateTime = data.curriculumInfo.dateTime;
-    date = new Date(dateTime.year, dateTime.month - 1, dateTime.day);
-
-    $.ajax(
+  _validateToken: (sendResponse) ->
+    $.ajax
       type: 'get'
-      url: 'https://www.googleapis.com/calendar/v3/calendars/' + calendarId + '/events?timeMin=' + encodeURI(date.toISOString())
-      headers: header
+      url: "https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=#{@accessToken}"
       async: false
-      success: (response) ->
-        for (key = 0; key < response.items; ++key)
-          $.ajax(
-            type: 'delete'
-            url: 'https://www.googleapis.com/calendar/v3/calendars/' + calendarId + '/events/' + response.items[key].id
-            headers: header
-            tryCount: 0
-            retryLimit: 3
-            error: ->
-              if (@tryCount <= @retryLimit)
-                @tryCount++
-                $.ajax(@)
-                return
-          )
-    )
+      success: (data) ->
+        sendResponse {status: data.audience == clientId}
 
-    for (k = 0; k < data.curriculumInfo.course.length; k++)
-      v = data.curriculumInfo.course[k];
+  _syncEvents: ->
+    self = @
 
-      startDateTime = new Date(dateTime.year, dateTime.month - 1, dateTime.day);
-      if v.weekRange.isArray()
-        startDateTime.setDate(dateTime.day + v.weekDay + (parseInt(v.weekRange[0]) - 1) * 7);
-      else
-        startDateTime.setDate(dateTime.day + v.weekDay + (parseInt(v.weekRange) - 1) * 7);
+    chrome.storage.local.get 'curriculum', (blob) ->
+      curriculum = blob['curriculum']
+      dateTime = self.internal.firstDate curriculum.termInfo
+      self.termBeginDate = new Date dateTime.year, dateTime.month - 1, dateTime.day
 
-      startDateTime.setHours(v.classBegin[0], v.classBegin[1]);
+      # Erase any exist event after first date in this term
+      $.ajax
+        type: 'get'
+        url: "https://www.googleapis.com/calendar/v3/calendars/#{self.calendarId}/events?timeMin=#{encodeURI self.termBeginDate.toISOString()}"
+        headers: self.header()
+        async: false
+        success: (response) ->
+          return unless response.items
+          for i, v of response.items
+            $.ajax
+              type: 'delete'
+              url: "https://www.googleapis.com/calendar/v3/calendars/#{self.calendarId}/events/#{v.id}"
+              headers: self.header()
+              tryCount: 0
+              retryLimit: 3
+              error: ->
+                console.log tryConut
+                if @tryCount <= @retryLimit
+                  @tryCount++
+                  $.ajax(@)
+                  return
 
+      self._insertEvent(curriculum)
 
-      endDateTime = new Date(startDateTime);
-      endDateTime.setHours(v.classEnd[0], v.classEnd[1]);
+  _generateDateTime: (weekNum, detail) ->
+    startDateTime = new Date @termBeginDate
+    startDateTime.setDate startDateTime.getDay() + # term begin in that day
+                          detail[0] + # weekday
+                          (weekNum - 1) * 7 # offset week
+    startTime = @internal.timeTable(detail[1]).start
+    startDateTime.setHours startTime[0], startTime[1] # course time duration
 
-      var requestBody =
-        start:
-          dateTime: startDateTime.toISOString()
-          timeZone: 'Asia/Shanghai'
-        end:
-          dateTime: endDateTime.toISOString()
-          timeZone: 'Asia/Shanghai'
-        location: v.location
-        description: '老师：' + v.teacherName
-        summary: v.courseName
+    endDateTime = new Date startDateTime
+    endTime = @internal.timeTable(detail[detail.length - 1]).end
+    endDateTime.setHours endTime[0], endTime[1]
 
-      if (v.recurrenceType !== 'SINGLE')
-        requestBody.recurrence = [_generateRecurrenceRule(v.recurrenceType, v.weekRange)];
-      requestBody = JSON.stringify(requestBody);
+    dateTime =
+      start: startDateTime
+      end: endDateTime
+    dateTime
 
-      $.ajax(
+  _generateEventPayloads: (curriculum)->
+    payloads = []
+    # Insert events
+    for i, course of curriculum.enrolled
+      for j, detail of course.details
+        # generate every event for single event
+        if detail.week[0] == 'SINGLE'
+          for k, weekNum of detail.week[1..] # iter every single week
+            daytime = @_generateDateTime weekNum, detail.time
+
+            payloads.push
+              start:
+                dateTime: daytime.start.toISOString()
+                timeZone: 'Asia/Shanghai'
+              end:
+                dateTime: daytime.end.toISOString()
+                timeZone: 'Asia/Shanghai'
+              location: detail.location
+              description: "老师：#{course.teacherName} 学分：#{course.grade}"
+              summary: course.courseName
+
+        # generate payloads for FULL or HALF course
+        else
+          daytime = @_generateDateTime detail.week[1], detail.time
+          recurrenceRule = @_generateRecurrenceRule detail.week
+
+          payloads.push
+            start:
+              dateTime: daytime.start.toISOString()
+              timeZone: 'Asia/Shanghai'
+            end:
+              dateTime: daytime.end.toISOString()
+              timeZone: 'Asia/Shanghai'
+            location: detail.location
+            description: "老师：#{course.teacherName} 学分：#{course.grade}"
+            summary: course.courseName
+            recurrence: recurrenceRule
+
+    payloads
+
+  _insertEvent: (curriculum) ->
+    self = @
+
+    payloads = @_generateEventPayloads(curriculum)
+
+    console.log payloads
+
+    for i, v of payloads
+      payload = JSON.stringify v
+
+      $.ajax
         type: 'post'
-        url: 'https://www.googleapis.com/calendar/v3/calendars/' + calendarId + '/events'
-        headers: header
+        url: "https://www.googleapis.com/calendar/v3/calendars/#{self.calendarId}/events"
+        headers: self.header()
         contentType: 'application/json'
         async: false
         tryCount: 0
         retryLimit: 3
-        data: requestBody
-        error: () ->
-          if (@tryCount <= @retryLimit)
+        data: payload
+        error: ->
+          if @tryCount <= @retryLimit
             @tryCount++
             $.ajax(@)
             return
-      )
 
-    sendResponse(true);
+  syncCalendarEvent: (data) ->
+    self = @
+    @addCalendar data
 
-    _generateRecurrenceRule: (type, weekRange) ->
-      if type === 'FULL'
-        return 'RRULE:FREQ=WEEKLY;COUNT=' + parseInt(parseInt(weekRange[weekRange.length - 1]) - parseInt(weekRange[0]) + 1);
-      else if type === 'HALF'
-        return 'RRULE:FREQ=WEEKLY;INTERVAL=2;COUNT=' + parseInt((parseInt(weekRange[weekRange.length - 1]) - parseInt(weekRange[0])) / 2 + 1);
+  _generateRecurrenceRule: (detail) ->
+    rule = 'RRULE:FREQ=WEEKLY;'
+    switch detail[0] # type
+      when 'FULL'
+        rule += "COUNT=#{detail[2] - detail[1] + 1}"
+      when 'HALF'
+        rule += "RRULE:FREQ=WEEKLY;INTERVAL=2;COUNT=#{(detail[2] - detail[1]) / 2 + 1}"
 
-handler = new GoogleCalendarHandler()
+    [rule]
 
-chrome.runtime.onMessage.addListener (request, sender, sendResponse) ->
-  if (request.type == 'AUTH_GOOGLE')
-    handler.auth(sendResponse)
-  else if (request.type == 'GET_CALENDAR_INFO')
-    handler.refreshCalendar(request.data, sendResponse)
-  else if (request.type == 'SYNC_CALENDAR_EVENT')
-    handler.syncEvent(request.data, sendResponse)
+class DHUHelper
+  constructor: ->
+    @handler = new GoogleCalendarHandler()
 
-  return true # keep the message channel open to the other end until sendResponse is called
-###
+  addChromeChannel: ->
+    self = @
+
+    chrome.runtime.onMessage.addListener (request, sender, sendResponse) ->
+      switch request.type
+        when 'AUTH_GOOGLE' then self.handler.auth sendResponse
+        when 'SYNC_CALENDAR_EVENT'
+          self.handler.syncCalendarEvent request.data
+          sendResponse(true)
+      true # keep the message channel open to the other end until sendResponse is called
+
+  run: ->
+    @addChromeChannel()
+
+app = new DHUHelper()
+app.run()
