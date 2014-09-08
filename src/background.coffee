@@ -49,7 +49,7 @@ class DHUInternal
       1:
         year: 2014
         month: 9
-        day: 15
+        day: 10
 
   timeTable: (classNumber) ->
     timeTableArray[classNumber]
