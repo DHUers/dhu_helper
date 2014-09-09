@@ -1,11 +1,13 @@
 {
   "name": "dhu_helper",
-  "version": "0.4.4",
+  "version": "0.5.0",
   "dependencies": {
     "jquery": "1.10",
+    "jquery-ui": "latest",
     "bootstrap": "latest",
     "jquery.sidebar": "latest",
     "momentjs": "latest",
+    "jquery.easing": "latest",
     "jquery-steps": "latest"
   }
 }

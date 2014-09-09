@@ -49,7 +49,7 @@ class DHUInternal
       1:
         year: 2014
         month: 9
-        day: 8
+        day: 7
 
   timeTable: (classNumber) ->
     timeTableArray[classNumber]
@@ -79,12 +79,12 @@ class GoogleCalendarHandler
   auth: (sendResponse) ->
     self = @
 
-    chrome.windows.create windowProperties, (window) ->
+    chrome.windows.create windowProperties, (win) ->
       chrome.tabs.onUpdated.addListener (tabId, changeInfo) ->
         url = changeInfo.url
         if url && url.indexOf callbackUrl != -1
           self.accessToken = url.split('#')[1].split('&')[0].split('=')[1]
-          chrome.windows.remove window.id
+          chrome.windows.remove win.id
           self._validateToken sendResponse
 
   header: ->
@@ -283,14 +283,16 @@ class DHUHelper
     self = @
 
     chrome.runtime.onMessage.addListener (request, sender, sendResponse) ->
+      console.log request.type
       switch request.type
         when 'AUTH_GOOGLE' then self.handler.auth sendResponse
         when 'SYNC_CALENDAR_EVENT'
+          console.log request.data
           self.handler.syncCalendarEvent request.data
           sendResponse(true)
       true # keep the message channel open to the other end until sendResponse is called
 
-  run: ->
+  run: =>
     @addChromeChannel()
 
 app = new DHUHelper()

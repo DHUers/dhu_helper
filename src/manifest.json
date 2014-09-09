@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "DHU助手",
-  "version": "0.4.5",
+  "version": "0.5.0",
   "description": "移除教务首页漂浮窗；同步课表至Google Calendar；选课提示",
   "icons": {
     "128": "images/icon.png"
@@ -23,11 +23,12 @@
       ],
       "js": [
         "vendor/jquery/jquery.js",
-        "vendor/jquery-ui/ui/jquery-ui.js",
+        "vendor/jquery.easing/js/jquery.easing.js",
+        "vendor/jquery-ui/jquery-ui.js",
         "vendor/bootstrap/dist/js/bootstrap.js",
         "vendor/jquery.sidebar/dist/jquery.sidebar.js",
         "vendor/momentjs/moment.js",
-        "vendor/momentjs/lang/zh-cn.js",
+        "vendor/momentjs/locale/zh-cn.js",
         "vendor/jquery-steps/build/jquery.steps.js",
         "course_parser.js",
         "curriculum.js"
@@ -39,7 +40,8 @@
       ],
       "js": [
         "vendor/jquery/jquery.js",
-        "vendor/jquery-ui/ui/jquery-ui.js",
+        "vendor/jquery.easing/js/jquery.easing.js",
+        "vendor/jquery-ui/jquery-ui.js",
         "vendor/bootstrap/dist/js/bootstrap.js",
         "vendor/jquery.sidebar/dist/jquery.sidebar.js",
         "select_course.js"
@@ -51,11 +53,12 @@
       ],
       "js": [
         "vendor/jquery/jquery.js",
-        "vendor/jquery-ui/ui/jquery-ui.js",
+        "vendor/jquery.easing/js/jquery.easing.js",
+        "vendor/jquery-ui/jquery-ui.js",
         "vendor/bootstrap/dist/js/bootstrap.js",
         "vendor/jquery.sidebar/dist/jquery.sidebar.js",
         "vendor/momentjs/moment.js",
-        "vendor/momentjs/lang/zh-cn.js",
+        "vendor/momentjs/locale/zh-cn.js",
         "course_parser.js",
         "course_hunter.js"
       ]

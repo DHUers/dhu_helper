@@ -53,10 +53,34 @@ class Wizard
   setting =
     enableKeyNavigation: false
     enablePagination: false
-    onFinishing: validateMeta
-    onFinished: syncCalendar
+    transitionEffect: "slideLeft"
+    onFinishing: (event, currentIndex) ->
+      $('#calendar-name').attr('value').length > 0
 
-  run: ->
+    onFinished: (event, currentIndex) ->
+      # get filled wizard
+      calendarName = $('#calendar-name').attr('value')
+
+      methods = $('.calendar-remind-method').map(-> return $(@).val()).get()
+      time = $('.calendar-remind-time').map(-> return $(@).attr('value')).get()
+
+      calendarReminder = []
+      for i, v of methods
+        calendarReminder.push
+          method: methods[i]
+          minutes: time[i]
+
+      console.log 'file message'
+      chrome.runtime.sendMessage({
+        type: 'SYNC_CALENDAR_EVENT'
+        data:
+          name: calendarName
+          reminder: calendarReminder
+      })
+
+      $('#sync-panel').remove()
+
+  run: =>
     self = @
 
     @wizard = $('#sync-panel-body').steps(setting)
@@ -71,7 +95,6 @@ class Wizard
     authGoogleButton.click ->
       authGoogleButton.prop 'disabled', true
       chrome.runtime.sendMessage {type: 'AUTH_GOOGLE'}, (response) ->
-        console.log "Step 1: #{response.status}" 
         if response.status
           self.wizard.steps 'next'
         else
@@ -114,30 +137,6 @@ generateCollisionTable = (data) ->
           collisionTable[weekNum][detail.time[0]] = (collisionTable[weekNum][detail.time[0]] || []).concat detail.time[1..]
 
   collisionTable
-
-validateMeta = (event, currentIndex) ->
-  $('#calendar-name').attr('value').length > 0
-
-syncCalendar = (event, currentIndex) ->
-  # get filled wizard
-  calendarName = $('#calendar-name').attr('value')
-
-  methods = $('.calendar-remind-method').map(-> return $(@).val()).get()
-  time = $('.calendar-remind-time').map(-> return $(@).attr('value')).get()
-
-  calendarReminder = []
-  for i, v of methods
-    calendarReminder.push
-      method: methods[i]
-      minutes: time[i]
-
-  chrome.runtime.sendMessage
-    type: 'SYNC_CALENDAR_EVENT'
-    data:
-      name: calendarName
-      reminder: calendarReminder
-
-  $('#sync-panel').remove()
 
 closePanel = ->
   $('#sync-panel').remove()
