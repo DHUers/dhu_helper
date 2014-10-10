@@ -181,7 +181,7 @@ class GoogleCalendarHandler
 
   _generateDateTime: (weekNum, detail) ->
     startDateTime = new Date @termBeginDate
-    startDateTime.setDate startDateTime.getDay() + # term begin in that day
+    startDateTime.setDate startDateTime.getDate() + # term begin in that day
                           detail[0] + # weekday
                           (weekNum - 1) * 7 # offset week
     startTime = @internal.timeTable(detail[1]).start
